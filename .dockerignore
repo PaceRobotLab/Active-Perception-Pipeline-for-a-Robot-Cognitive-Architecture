@@ -1,0 +1,9 @@
+results/*.json
+assets/
+*.pth
+*.avi
+*.pdf
+*.html
+__pycache__/
+*.pyc
+.git/

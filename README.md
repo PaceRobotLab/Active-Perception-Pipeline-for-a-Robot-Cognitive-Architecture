@@ -123,7 +123,56 @@ On the very first run, VGGT (~4 GB) and Grounding DINO (~340 MB) will be downloa
 
 ---
 
-## Usage
+## Running with Docker
+
+Docker is the recommended way to run the pipeline on any Linux machine with an NVIDIA GPU and ZED camera — no manual Python environment setup needed.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/engine/install/) + [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
+- ZED SDK installed on the **host** (needed for USB firmware communication)
+- `sam_vit_b_01ec64.pth` downloaded and placed **in the same folder as `docker-compose.yml`**
+
+### 1. Download SAM checkpoint
+
+```bash
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
+```
+
+### 2. Allow X11 display forwarding (for Open3D window)
+
+```bash
+xhost +local:docker
+```
+
+### 3. Find your ZED camera device index
+
+```bash
+ls /dev/video*
+```
+
+Edit `docker-compose.yml` and update the `devices` section to match your ZED camera indices (default: `/dev/video0` and `/dev/video1`).
+
+### 4. Build and run
+
+```bash
+docker compose up --build
+```
+
+On first run, VGGT (~4 GB) and Grounding DINO (~340 MB) are downloaded from HuggingFace and cached in the `hf_cache` Docker volume — subsequent runs skip this.
+
+Detection results are written to `./results/` on the host.
+
+### Notes
+
+- The Open3D window appears on your host display via X11 forwarding
+- HuggingFace model cache persists across container restarts via a named Docker volume
+- To rebuild the image after code changes: `docker compose build`
+- Windows: Docker does not support USB device passthrough natively — run natively on Windows or use a Linux VM with GPU passthrough
+
+---
+
+## Usage (without Docker)
 
 ```bash
 python vggt_guided_pipeline.py

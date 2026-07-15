@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  active-perception:
+    build: .
+    image: active-perception-pipeline
+
+    # ── GPU ───────────────────────────────────────────────────────────────────
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+
+      # ── Open3D display (X11 forwarding on Linux) ──────────────────────────
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+
+      # ── HuggingFace cache dir inside container ────────────────────────────
+      - HF_HOME=/hf_cache
+
+    volumes:
+      # X11 socket for Open3D window
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+
+      # SAM checkpoint — place sam_vit_b_01ec64.pth next to docker-compose.yml
+      # Script expects it at ../sam_vit_b_01ec64.pth relative to the script (/sam_vit_b_01ec64.pth)
+      - ./sam_vit_b_01ec64.pth:/sam_vit_b_01ec64.pth:ro
+
+      # HuggingFace model cache (VGGT ~4GB + DINO ~340MB) — persists across runs
+      - hf_cache:/hf_cache
+
+      # Detection results written back to host
+      - ./results:/app/results
+
+    # ── ZED Camera (USB device passthrough) ───────────────────────────────────
+    # ZED cameras appear as /dev/video* on Linux.
+    # Uncomment and adjust the index matching your ZED camera (check with: ls /dev/video*)
+    devices:
+      - /dev/video0:/dev/video0
+      - /dev/video1:/dev/video1
+    # Also pass USB bus access for ZED SDK firmware communication
+    privileged: false
+    device_cgroup_rules:
+      - "c 189:* rmw"   # USB devices
+
+    stdin_open: true
+    tty: true
+
+    restart: "no"
+
+volumes:
+  hf_cache:
+    driver: local
