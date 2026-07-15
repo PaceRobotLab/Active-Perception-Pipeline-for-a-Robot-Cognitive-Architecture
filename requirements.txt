@@ -1,0 +1,29 @@
+# ── Core deep learning ─────────────────────────────────────────────────────────
+torch>=2.0.0
+torchvision>=0.15.0
+
+# ── Vision & image processing ──────────────────────────────────────────────────
+numpy>=1.24.0
+opencv-python>=4.7.0
+Pillow>=9.5.0
+open3d>=0.17.0
+
+# ── Hugging Face (Grounding DINO) ──────────────────────────────────────────────
+transformers>=4.38.0
+accelerate>=0.27.0
+
+# ── VGGT (Facebook Research — 3D reconstruction) ──────────────────────────────
+# Install from source:
+#   pip install git+https://github.com/facebookresearch/vggt.git
+vggt
+
+# ── Segment Anything (SAM) ─────────────────────────────────────────────────────
+# Install from source:
+#   pip install git+https://github.com/facebookresearch/segment-anything.git
+segment-anything
+
+# ── ZED SDK Python API ─────────────────────────────────────────────────────────
+# pyzed is installed via the official ZED SDK installer, NOT via pip.
+# Download: https://www.stereolabs.com/developers/release
+# After SDK install, run:
+#   python "C:/Program Files (x86)/ZED SDK/get_python_api.py"
