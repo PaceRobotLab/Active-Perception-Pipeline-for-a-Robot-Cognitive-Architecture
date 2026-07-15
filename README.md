@@ -2,6 +2,9 @@
 
 Real-time 3D scene reconstruction and object detection pipeline integrating ZED stereo vision, VGGT multiview 3D inference, Grounding DINO, and SAM — governed by an ADAPT cognitive architecture that drives active camera sweeps, evaluates detections via confidence-gated port states, and builds labeled point cloud representations of the environment.
 
+![3D Reconstruction Demo](assets/reconstruction_demo.png)
+*Open3D output — chairs (green, blue) and screens (orange) labeled in the reconstructed point cloud*
+
 ---
 
 ## Overview
