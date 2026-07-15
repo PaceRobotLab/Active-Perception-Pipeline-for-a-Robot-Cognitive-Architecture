@@ -56,6 +56,20 @@ Results are saved as JSON to the `results/` folder after each run.
 
 ---
 
+## Models Required
+
+The pipeline uses three external models. None of them are included in this repo — you must download/install them before running.
+
+| Model | Source | Size | How it loads |
+|---|---|---|---|
+| **VGGT-1B** | HuggingFace `facebook/VGGT-1B` | ~4 GB | Auto-downloaded on first run via `VGGT.from_pretrained()` |
+| **Grounding DINO** | HuggingFace `IDEA-Research/grounding-dino-tiny` | ~340 MB | Auto-downloaded on first run via `AutoModel.from_pretrained()` |
+| **SAM ViT-B** | Meta (manual download) | ~358 MB | Must be placed manually — see Step 3 below |
+
+> VGGT and DINO are pulled from HuggingFace automatically the first time you run the script (requires internet). SAM must be downloaded manually once and placed at the correct path.
+
+---
+
 ## Installation
 
 ### 1. ZED SDK
@@ -81,16 +95,28 @@ pip install git+https://github.com/facebookresearch/segment-anything.git
 
 > See `requirements.txt` for the full pinned list.
 
-### 3. SAM checkpoint
+### 3. SAM checkpoint (manual download required)
 
-Download the SAM ViT-B checkpoint and place it one level above this folder:
+SAM weights are not on HuggingFace — download the ViT-B checkpoint directly from Meta and place it **one level above** this repo folder:
 
 ```bash
-# From the repo root:
-wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
+# Windows (PowerShell)
+Invoke-WebRequest -Uri https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth -OutFile ..\sam_vit_b_01ec64.pth
+
+# Linux / Mac
+wget -O ../sam_vit_b_01ec64.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
 ```
 
 Expected path: `../sam_vit_b_01ec64.pth` relative to `vggt_guided_pipeline.py`.
+
+If you prefer a different location, update this line in the script:
+```python
+SAM_CKPT = os.path.join(os.path.dirname(__file__), "..", "sam_vit_b_01ec64.pth")
+```
+
+### 4. First-run model downloads
+
+On the very first run, VGGT (~4 GB) and Grounding DINO (~340 MB) will be downloaded automatically from HuggingFace and cached locally. This only happens once. Make sure you have a stable internet connection and enough disk space (~5 GB free).
 
 ---
 
