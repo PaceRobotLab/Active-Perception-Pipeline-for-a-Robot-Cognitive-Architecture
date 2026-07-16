@@ -1,4 +1,4 @@
-# Active Perception Pipeline for a Robot Cognitive Architecture
+# Active Perception Pipeline for a Robot Cognitive Architecture [APPRCA]
 
 Real-time 3D scene reconstruction and object detection pipeline integrating ZED stereo vision, VGGT multiview 3D inference, Grounding DINO, and SAM — governed by an ADAPT cognitive architecture that drives active camera sweeps, evaluates detections via confidence-gated port states, and builds labeled point cloud representations of the environment.
 
