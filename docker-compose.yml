@@ -1,4 +1,4 @@
-version: "3.8"
+# Docker Compose V2 — no 'version' field needed
 
 services:
   active-perception:
@@ -22,8 +22,10 @@ services:
       # X11 socket for Open3D window
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
 
-      # SAM checkpoint — place sam_vit_b_01ec64.pth next to docker-compose.yml
-      # Script expects it at ../sam_vit_b_01ec64.pth relative to the script (/sam_vit_b_01ec64.pth)
+      # SAM checkpoint — MUST exist on host before running.
+      # Place sam_vit_b_01ec64.pth in the same folder as this file.
+      # Download: wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
+      # If this file is missing, Docker will create a directory here instead — causing a crash.
       - ./sam_vit_b_01ec64.pth:/sam_vit_b_01ec64.pth:ro
 
       # HuggingFace model cache (VGGT ~4GB + DINO ~340MB) — persists across runs
@@ -32,17 +34,17 @@ services:
       # Detection results written back to host
       - ./results:/app/results
 
-    # ── ZED Camera (USB device passthrough) ───────────────────────────────────
-    # ZED cameras appear as /dev/video* on Linux.
-    # Uncomment and adjust the index matching your ZED camera (check with: ls /dev/video*)
+    # ── ZED Camera (USB device passthrough on Linux) ──────────────────────────
+    # Check your ZED device indices with: ls /dev/video*
+    # ZED cameras typically claim 2 consecutive /dev/video* nodes
     devices:
       - /dev/video0:/dev/video0
       - /dev/video1:/dev/video1
-    # Also pass USB bus access for ZED SDK firmware communication
-    privileged: false
     device_cgroup_rules:
-      - "c 189:* rmw"   # USB devices
+      - "c 189:* rmw"   # USB device major 189 — required for ZED SDK firmware
 
+    # stdin_open + tty are required: the pipeline starts with an input() prompt
+    # Use 'docker compose run' (not 'up') to keep stdin attached — see README
     stdin_open: true
     tty: true
 

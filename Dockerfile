@@ -5,13 +5,23 @@ FROM stereolabs/zed:4.2-py-devel-cuda12.1-ubuntu22.04
 # Avoid interactive prompts during apt installs
 ENV DEBIAN_FRONTEND=noninteractive
 
-# ── System deps for Open3D display and OpenCV ─────────────────────────────────
+# ── System deps for Open3D (OpenGL + X11) and OpenCV ─────────────────────────
+# Note: libgl1-mesa-glx was renamed to libgl1 in Ubuntu 22.04
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
+    libgl1 \
+    libglu1-mesa \
     libglib2.0-0 \
     libsm6 \
+    libx11-6 \
     libxext6 \
-    libxrender-dev \
+    libxrender1 \
+    libxcb1 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-xinerama0 \
     libgomp1 \
     git \
     && rm -rf /var/lib/apt/lists/*
@@ -44,9 +54,9 @@ WORKDIR /app
 COPY vggt_guided_pipeline.py .
 COPY results/ results/
 
-# SAM checkpoint is mounted at runtime — expected at /sam_vit_b_01ec64.pth
-# (one level above /app, matching the path in the script)
-# HuggingFace model cache is also mounted to avoid re-downloading each run
+# SAM checkpoint mounted at runtime → /sam_vit_b_01ec64.pth
+# Script resolves: os.path.dirname(__file__) = /app  → ../  = /
+# So SAM_CKPT = /sam_vit_b_01ec64.pth  ✓
 
 ENV PYTHONUNBUFFERED=1
 

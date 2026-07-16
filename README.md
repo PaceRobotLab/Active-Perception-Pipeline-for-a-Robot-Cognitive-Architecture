@@ -153,22 +153,32 @@ ls /dev/video*
 
 Edit `docker-compose.yml` and update the `devices` section to match your ZED camera indices (default: `/dev/video0` and `/dev/video1`).
 
-### 4. Build and run
+### 4. Build the image
 
 ```bash
-docker compose up --build
+docker compose build
 ```
 
-On first run, VGGT (~4 GB) and Grounding DINO (~340 MB) are downloaded from HuggingFace and cached in the `hf_cache` Docker volume — subsequent runs skip this.
+### 5. Run interactively
+
+```bash
+# Use 'run' (not 'up') — the pipeline starts with a text prompt asking what objects to find.
+# 'docker compose up' does not attach stdin and the prompt will hang silently.
+docker compose run --rm active-perception
+```
+
+On first run, VGGT (~4 GB) and Grounding DINO (~340 MB) are downloaded from HuggingFace and cached in the `hf_cache` Docker volume — subsequent runs skip this and start immediately.
 
 Detection results are written to `./results/` on the host.
 
 ### Notes
 
-- The Open3D window appears on your host display via X11 forwarding
-- HuggingFace model cache persists across container restarts via a named Docker volume
-- To rebuild the image after code changes: `docker compose build`
-- Windows: Docker does not support USB device passthrough natively — run natively on Windows or use a Linux VM with GPU passthrough
+- **`docker compose run` not `up`** — the pipeline asks for user input on launch; `up` doesn't attach stdin
+- **SAM checkpoint must exist before running** — if `sam_vit_b_01ec64.pth` is missing, Docker creates a directory at that path instead of a file, causing a confusing crash at startup
+- **ZED device indices** — check which `/dev/video*` nodes your ZED camera claims (`ls /dev/video*`) and update `docker-compose.yml` if needed
+- **Open3D window** appears on your host display via X11 forwarding (`xhost +local:docker` must be run first)
+- **HuggingFace cache** persists across runs via the `hf_cache` named Docker volume (~5 GB on first run)
+- **Windows** — Docker Desktop does not support USB device passthrough; run natively on Windows or use a Linux VM with GPU passthrough
 
 ---
 
